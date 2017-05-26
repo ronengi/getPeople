@@ -1,0 +1,86 @@
+<html lang="he">
+  <head>
+    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+    <title>Get People</title>
+
+    <style>
+      #wrapper     {  width: 100%;  text-align: center;  border: 0px solid green;  }
+      table        {  width: 50%;  margin: 0 auto;  direction: rtl;  border: 0px solid red;  cellpadding: 20px;  cellspacing: 20px;  }
+      td, th       {  text-align: right;  direction: rtl;  }
+      button       {  border: 2px solid blue;  border-radius:10%;  font-size: 15px;  }
+      button.bSearch {  background-color: greenyellow;  }
+      button.bAdd {  background-color: cyan;  }
+      button.bDel {  background-color: pink;  }
+      #results     {  width: 60%;  margin: 50px auto;  text-align: center;  border: 1px solid green;  }
+    </style>
+
+
+    <script>
+
+      function delCity(r) {	// delete this city search row
+	  document.getElementById("cities").deleteRow(r);
+      }
+
+      function addCity() {	// add city search row
+	  var table=document.getElementById("cities");
+	  var row=table.insertRow(-1);
+	  var cell1=row.insertCell(0);
+	  var cell2=row.insertCell(1);
+	  var cell3=row.insertCell(2);
+	  cell1.innerHTML="<input id=\"city\" size=10>";
+	  cell2.innerHTML="<input id=\"radius\" size=10>";
+	  cell3.innerHTML="<button class=\"bDel\" type=\"button\" onclick=\"delCity(this.parentNode.parentNode.rowIndex)\">מחק עיר</button>";
+      }
+
+      function searchUsers() {	// display search results
+	  var searchString = "";
+	  var table = document.getElementById("cities");
+	  for (var i = 1, row; row = table.rows[i]; ++i) {
+	      if (row.cells[0].children.city.value != ""  &&  row.cells[1].children.radius.value != "") {
+		  searchString += row.cells[0].children.city.value;
+		  searchString += "=";
+		  searchString += row.cells[1].children.radius.value;
+		  searchString += "&";
+	      }
+	  }
+	  // send AJAX request
+	  xmlhttp=new XMLHttpRequest();
+	  xmlhttp.onreadystatechange = function() {
+	      if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+		  document.getElementById("results").innerHTML=xmlhttp.responseText;
+	      }
+	  }
+	  xmlhttp.open("POST", "getPeople.php", true);
+	  xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	  xmlhttp.send(searchString);
+      }
+
+    </script>
+  </head>
+
+  <body>
+    <br><br>
+    <div id="wrapper">
+
+      <h1><u>Get People</u></h1><br>
+
+      <table id="cities" class="centralized" border="0">
+        <tr>
+	  <th width="50%">בקרבת הערים</th>
+	  <th width="40%">רדיוס מבוקש בקילומטרים</th>
+	  <th width="10%"><button class="bSearch" type="button" onclick="searchUsers()">חפש משתמשים</button></th>
+	</tr>
+        <tr>
+	  <td><input id="city" size=10></td>
+	  <td><input id="radius" size=10></td>
+	  <td><button class="bAdd" type="button" onclick="addCity()">הוסף עיר</button></td>
+	</tr>
+      </table>
+
+      <div id="results">
+      </div>
+
+    </div>
+
+  </body>
+</html>
